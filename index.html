@@ -55,7 +55,7 @@
 
       while (hasMore) {
         const response = await fetch(
-          `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?api_key=${apiKey}&offset=${offset}&limit=100`
+          `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?api_key=${apiKey}&offset=${offset}&limit=50`
         );
         const data = await response.json();
         const posts = data.response.posts;
@@ -75,7 +75,7 @@
           }
         });
 
-        offset += 100; // load next batch
+        offset += 50; // load next batch
       }
     }
 

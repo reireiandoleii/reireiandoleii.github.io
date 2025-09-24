@@ -75,23 +75,24 @@
   <script>
     const blogName = "andpproximately";
     const apiKey = "MeUG1GH11oyfveoKuw6oW9LWwksej0pw6bhJuuwE3Zn94ywoWZ";
-    let offset = 0;
     const limit = 20;
+
+    let beforeStack = []; // history of "before" timestamps for prev
+    let currentBefore = Math.floor(Date.now() / 1000); // start from now
 
     async function loadTumblrImages() {
       const container = document.getElementById("tumblrGallery");
       container.innerHTML = ""; // clear current page
 
-      const response = await fetch(
-        `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?api_key=${apiKey}&offset=${offset}&limit=${limit}`
-      );
+      const url = `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?api_key=${apiKey}&limit=${limit}&before=${currentBefore}`;
+
+      const response = await fetch(url);
       const data = await response.json();
       const posts = data.response.posts;
 
-      // disable prev if we're at start
-      document.getElementById("prevBtn").disabled = offset === 0;
-
-      // disable next if there are no more posts
+      // disable prev if no history
+      document.getElementById("prevBtn").disabled = beforeStack.length === 0;
+      // disable next if fewer than limit returned (means no more older posts)
       document.getElementById("nextBtn").disabled = posts.length < limit;
 
       posts.forEach(post => {
@@ -103,16 +104,21 @@
           });
         }
       });
+
+      // store the last (oldest) timestamp for next page
+      if (posts.length > 0) {
+        currentBefore = posts[posts.length - 1].timestamp;
+      }
     }
 
     document.getElementById("nextBtn").addEventListener("click", () => {
-      offset += limit;
+      beforeStack.push(currentBefore); // save where we were
       loadTumblrImages();
     });
 
     document.getElementById("prevBtn").addEventListener("click", () => {
-      if (offset >= limit) {
-        offset -= limit;
+      if (beforeStack.length > 0) {
+        currentBefore = beforeStack.pop();
         loadTumblrImages();
       }
     });
@@ -121,6 +127,5 @@
   </script>
 </body>
 </html>
-
 
 <img src="headerimage.png" alt="Temp image">

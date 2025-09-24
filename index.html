@@ -43,44 +43,7 @@
   <h1>My Tumblr Portfolio</h1>
   <div class="gallery" id="tumblrGallery"></div>
 
-  <script>
-    // Replace 'andpproximately' with your Tumblr blog name
-    const blogName = "andpproximately";
-    const apiKey = "MeUG1GH11oyfveoKuw6oW9LWwksej0pw6bhJuuwE3Zn94ywoWZ"; // you'll need one from https://www.tumblr.com/oauth/apps
-
-    async function loadTumblrImages() {
-      let offset = 0;
-      let hasMore = true;
-      const container = document.getElementById("tumblrGallery");
-
-      while (hasMore) {
-        const response = await fetch(
-          `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?api_key=${apiKey}&offset=${offset}&limit=50`
-        );
-        const data = await response.json();
-        const posts = data.response.posts;
-
-        if (posts.length === 0) {
-          hasMore = false;
-          break;
-        }
-
-        posts.forEach(post => {
-          if (post.photos) {
-            post.photos.forEach(photo => {
-              const img = document.createElement("img");
-              img.src = photo.original_size.url;
-              container.appendChild(img);
-            });
-          }
-        });
-
-        offset += 50; // load next batch
-      }
-    }
-
-    loadTumblrImages();
-  </script>
+<script type='text/javascript' src='https://andpproximately.tumblr.com/js'></script>
 </body>
 </html>
 

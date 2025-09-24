@@ -1,130 +1,242 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tumblr Portfolio Gallery</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: #fafafa;
-    }
-
-    h1 {
-      text-align: center;
-      padding: 1rem;
-    }
-
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
-      padding: 20px;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    .gallery img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      object-fit: cover;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .gallery img:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-
-    .pagination {
-      text-align: center;
-      margin: 20px;
-    }
-
-    .pagination button {
-      background: #333;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      margin: 0 5px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .pagination button:hover {
-      background: #555;
-    }
-
-    .pagination button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tumblr Portfolio (robust pagination)</title>
+<style>
+  :root{--bg:#f7f7f8;--card:#fff;--accent:#111}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:var(--accent)}
+  header{padding:1.2rem;text-align:center}
+  h1{margin:0;font-size:1.25rem}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px}
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:14px;
+    align-items:start;
+  }
+  .card{
+    background:var(--card);border-radius:12px;padding:6px;box-shadow:0 2px 6px rgba(0,0,0,0.06);overflow:hidden;
+  }
+  .card img{width:100%;height:220px;object-fit:cover;border-radius:8px;display:block;transition:transform .25s}
+  .card img:hover{transform:scale(1.03)}
+  .meta{font-size:12px;padding:8px 6px 0;color:#666}
+  .controls{display:flex;gap:8px;justify-content:center;margin:18px 0}
+  button{background:#111;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+  button[disabled]{opacity:.45;cursor:not-allowed}
+  .debug{font-family:monospace;font-size:12px;margin-top:12px;color:#333;white-space:pre-wrap;background:#fff;padding:10px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+  .small{font-size:13px;color:#444;text-align:center;margin-top:8px}
+</style>
 </head>
 <body>
-  <h1>My Tumblr Portfolio</h1>
-  <div class="gallery" id="tumblrGallery"></div>
-  <div class="pagination">
-    <button id="prevBtn" disabled>Previous</button>
-    <button id="nextBtn">Next</button>
-  </div>
+  <header><h1>My Tumblr Portfolio</h1></header>
 
-  <script>
-    const blogName = "andpproximately";
-    const apiKey = "MeUG1GH11oyfveoKuw6oW9LWwksej0pw6bhJuuwE3Zn94ywoWZ";
-    const limit = 20;
+  <main class="wrap">
+    <div id="gallery" class="gallery" aria-live="polite"></div>
 
-    let beforeStack = []; // history of "before" timestamps for prev
-    let currentBefore = Math.floor(Date.now() / 1000); // start from now
+    <div class="controls">
+      <button id="firstBtn">Jump to Latest</button>
+      <button id="prevBtn" disabled>Previous</button>
+      <button id="nextBtn" disabled>Next</button>
+    </div>
 
-    async function loadTumblrImages() {
-      const container = document.getElementById("tumblrGallery");
-      container.innerHTML = ""; // clear current page
+    <div class="small" id="pageInfo">Loading…</div>
 
-      const url = `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?api_key=${apiKey}&limit=${limit}&before=${currentBefore}`;
+    <div class="debug" id="debug" aria-hidden="false" style="display:none"></div>
+  </main>
 
-      const response = await fetch(url);
-      const data = await response.json();
-      const posts = data.response.posts;
+<script>
+/*
+  Robust Tumblr photo pagination + gallery
+  - Uses API key you supplied
+  - Pages with limit=20, sort=desc (newest first)
+  - Cursor uses { before_id, before } (id + timestamp fallback)
+  - Deduplication + duplicate-page retry logic
+  - Debug logs in console + small on-page debug panel
+*/
 
-      // disable prev if no history
-      document.getElementById("prevBtn").disabled = beforeStack.length === 0;
-      // disable next if fewer than limit returned (means no more older posts)
-      document.getElementById("nextBtn").disabled = posts.length < limit;
+const blogName = "andpproximately";
+const apiKey = "MeUG1GH11oyfveoKuw6oW9LWwksej0pw6bhJuuwE3Zn94ywoWZ"; // your key (client-side exposure is insecure; ok for testing)
+const limit = 20;
 
-      posts.forEach(post => {
-        if (post.photos) {
-          post.photos.forEach(photo => {
-            const img = document.createElement("img");
-            img.src = photo.original_size.url;
-            container.appendChild(img);
-          });
-        }
-      });
+const gallery = document.getElementById('gallery');
+const debugEl = document.getElementById('debug');
+const pageInfo = document.getElementById('pageInfo');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const firstBtn = document.getElementById('firstBtn');
 
-      // store the last (oldest) timestamp for next page
-      if (posts.length > 0) {
-        currentBefore = posts[posts.length - 1].timestamp;
+let currentCursor = null;    // the cursor used for the currently-displayed page (null = newest)
+let nextCursor = null;       // computed from last fetch (oldest post in that batch)
+let prevStack = [];          // stack of previous cursors (for "Previous")
+let lastFetchedIds = [];     // IDs of the last fetched page (to detect duplicates)
+let seenIds = new Set();     // dedupe across pages (keeps UI clean)
+let pageNumber = 1;
+
+// Helper: build request URL from cursor
+function buildUrl(cursor) {
+  const params = new URLSearchParams({
+    api_key,
+    limit: String(limit),
+    sort: 'desc' // make sure API returns newest -> oldest
+  });
+  if (cursor) {
+    if (cursor.before_id) params.set('before_id', String(cursor.before_id));
+    else if (cursor.before) params.set('before', String(cursor.before));
+  }
+  return `https://api.tumblr.com/v2/blog/${blogName}.tumblr.com/posts/photo?${params.toString()}`;
+}
+
+// Helper: shallow array equality of IDs
+function arraysEqual(a,b){
+  if(!a || !b || a.length !== b.length) return false;
+  for(let i=0;i<a.length;i++) if(String(a[i]) !== String(b[i])) return false;
+  return true;
+}
+
+// Display debug on page and console
+function debug(msg, obj=null){
+  console.log('[TUMBLR-PAGINATION]', msg, obj || '');
+  debugEl.style.display = 'block';
+  debugEl.textContent = (new Date()).toLocaleTimeString() + ' — ' + msg + (obj ? ("\n" + JSON.stringify(obj, null, 2)) : '') + "\n\n" + debugEl.textContent;
+}
+
+// Render posts (newest-first)
+function renderPosts(posts){
+  gallery.innerHTML = ''; // clear page for current "page" view
+  let shown = 0;
+  posts.forEach(post => {
+    if (seenIds.has(String(post.id))) return; // skip if we've already shown this post previously
+    if (!post.photos || !post.photos.length) return;
+    const card = document.createElement('div'); card.className = 'card';
+    // choose first photo as preview (you can show all photos in a multi-photo post if desired)
+    const src = post.photos[0].original_size?.url || (post.photos[0].alt_sizes && post.photos[0].alt_sizes[0]?.url);
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.src = src;
+    card.appendChild(img);
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const date = new Date(post.timestamp * 1000).toLocaleString();
+    meta.textContent = `${date} • id:${post.id}`;
+    card.appendChild(meta);
+
+    gallery.appendChild(card);
+    shown++;
+    seenIds.add(String(post.id));
+  });
+
+  pageInfo.textContent = `Page ${pageNumber} — showing ${shown} post(s) on this page`;
+}
+
+// Main fetch + page logic with a retry on duplicate results
+async function loadPage(cursor=null, attempt=0){
+  // cursor = null means newest page
+  const url = buildUrl(cursor);
+  debug('Requesting', url);
+  pageInfo.textContent = 'Loading…';
+
+  try {
+    const resp = await fetch(url);
+    const payload = await resp.json();
+
+    debug('Response meta', payload.meta);
+    if (!payload || !payload.response){
+      debug('Bad response shape', payload);
+      pageInfo.textContent = 'Error: unexpected response shape (check console)';
+      return;
+    }
+
+    const posts = payload.response.posts || [];
+    // Force deterministic sort: newest -> oldest
+    posts.sort((a,b)=> b.timestamp - a.timestamp);
+
+    const fetchedIds = posts.map(p => String(p.id));
+    console.log('Fetched IDs:', fetchedIds);
+
+    // If the new page is identical to the last fetched page, try a fallback (timestamp - 1)
+    if (attempt === 0 && arraysEqual(fetchedIds, lastFetchedIds)) {
+      debug('Duplicate page detected (same IDs). Attempting timestamp fallback.');
+      if (posts.length) {
+        const oldest = posts[posts.length-1];
+        const fallbackCursor = { before: Number(oldest.timestamp) - 1 }; // subtract 1 sec to avoid repeating the same item
+        // retry once with fallback cursor
+        return loadPage(fallbackCursor, attempt + 1);
       }
     }
 
-    document.getElementById("nextBtn").addEventListener("click", () => {
-      beforeStack.push(currentBefore); // save where we were
-      loadTumblrImages();
-    });
+    // If still duplicate or empty, show message and disable Next
+    if (attempt > 0 && arraysEqual(fetchedIds, lastFetchedIds)) {
+      debug('Duplicate page still; aborting further retries.');
+      pageInfo.textContent = 'No more older posts or pagination stuck (see console).';
+      nextBtn.disabled = true;
+      return;
+    }
 
-    document.getElementById("prevBtn").addEventListener("click", () => {
-      if (beforeStack.length > 0) {
-        currentBefore = beforeStack.pop();
-        loadTumblrImages();
-      }
-    });
+    // Render the page (newest first)
+    renderPosts(posts);
 
-    loadTumblrImages();
-  </script>
+    // compute next cursor from the oldest post in this batch
+    if (posts.length) {
+      const oldest = posts[posts.length - 1];
+      nextCursor = {
+        before_id: oldest.id,
+        before: Number(oldest.timestamp) - 1 // safe fallback if API prefers timestamps
+      };
+      nextBtn.disabled = posts.length < limit; // if fewer than limit, likely no more older pages
+    } else {
+      nextCursor = null;
+      nextBtn.disabled = true;
+    }
+
+    // Prev enabled if stack has entries
+    prevBtn.disabled = prevStack.length === 0;
+    // If we got posts, store lastFetchedIds so duplication check works
+    lastFetchedIds = fetchedIds.slice();
+
+    // show some meta
+    pageInfo.textContent = `Page ${pageNumber} — received ${posts.length} posts (limit ${limit})`;
+
+  } catch (err) {
+    debug('Fetch error', { error: String(err) });
+    pageInfo.textContent = 'Network or API error — see console for details.';
+  }
+}
+
+// Button actions
+nextBtn.addEventListener('click', () => {
+  if (!nextCursor) return;
+  // save current cursor so user can go back
+  prevStack.push(currentCursor);
+  currentCursor = nextCursor;
+  pageNumber++;
+  loadPage(currentCursor);
+});
+
+prevBtn.addEventListener('click', () => {
+  if (prevStack.length === 0) return;
+  currentCursor = prevStack.pop(); // could be null -> newest
+  pageNumber = Math.max(1, pageNumber - 1);
+  loadPage(currentCursor);
+});
+
+firstBtn.addEventListener('click', () => {
+  // jump straight back to newest
+  currentCursor = null;
+  prevStack = [];
+  pageNumber = 1;
+  loadPage(null);
+});
+
+// Initial load: newest page (no before param)
+loadPage(null).then(()=> {
+  // after first load, enable Next if nextCursor exists
+  nextBtn.disabled = !nextCursor;
+});
+
+</script>
 </body>
 </html>
 

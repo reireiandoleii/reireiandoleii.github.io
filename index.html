@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Darumadrop+One&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Great+Vibes&family=Londrina+Outline&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div id="intro">
+    <h1>"Want a break from the references?"</h1>
+    <p>Approximately! Studios</p>
+    <div id="paint-rise"></div>
+</div>
+
+<header class="banner">
+    <nav>
+        <a href="index.html" class="active">HOME</a>
+        <a href="about.html">ABOUT ME</a>
+        <a href="projects.html">PROJECTS</a>
+        <a href="coursework.html">COURSEWORK</a>
+        <a href="contact.html">CONTACT</a>
+    </nav>
+</header>
+
+<button id="dark-mode-btn">月</button>
+
+<div id="mini-bar">
+    <a href="index.html" class="eye">
+        <img src="assets/eye.gif" alt="Home" >
+    </a>
+    <nav>
+        <a href="index.html" class="active">HOME</a>
+        <a href="about.html">ABOUT ME</a>
+        <a href="projects.html">PROJECTS</a>
+        <a href="coursework.html">COURSEWORK</a>
+        <a href="contact.html">CONTACT</a>
+    </nav>
+</div>
+
+<div class="container">
+    <img src="assets/splash-red.png" alt="" class="splash" style="top: 250px; left: -150px;">
+    <img src="assets/splash-blue.png" alt="" class="splash" style="top: 100px; right: -120px;">
+    <img src="assets/splash-yellow.png" alt="" class="splash" style="top: 300px; left: 80%;">
+
+<main>
+<img src="assets/andree.png" alt="Andree! Approximately logo" class="big-title reveal">
+
+<p class="subtitle reveal">YouTuber - Illustrator/Rotoscope Animator/Writer</p>
+
+        <div class="photo-row">
+            <div class="reveal"><img src="assets/home/adobo 4.png" alt="Artwork 1" class="frame red"></div>
+            <div class="reveal"><img src="assets/home/gold-shipu.gif" alt="Artwork 2" class="frame yellow"></div>
+            <div class="reveal"><img src="assets/home/comm for vel_1.gif" alt="Artwork 3" class="frame blue"></div>
+            <div class="reveal"><img src="assets/home/Illustration67_1.png" alt="Artwork 4" class="frame purple"></div>
+        </div>
+
+     <p class="intro-text reveal">
+            I'm known on YouTube for my meme animations, the pioneer of <strong>Reference Chaos Animations (RefeCha)</strong>.
+            <br>
+            I'm from the Philippines, studying a Bachelor's Degree in Multimedia Arts w/ spec. in Digital Film and Animation.
+        </p>
+     <p class="intro-text reveal">
+            Across dimensions; <br> This website compiles my general information, writing projects, commission work, and coursework! 
+        </p>
+</main>
+</div>
+
+<blockquote class="reveal">"HOPE BE UPON YOU!"</blockquote>
+
+<footer>
+    <p>Andree Joe Cornejo<br> ⋆˖⁺‧₊☽🔆☾₊‧⁺˖⋆ <br>2026</p>
+</footer>
+
+<script>
+    const intro = document.querySelector('#intro');
+    const paint = document.querySelector('#paint-rise');
+
+    document.body.classList.add('intro-active');
+
+    setTimeout(function() {
+        paint.classList.add('rise');
+    }, 1500);
+
+    setTimeout(function() {
+        intro.classList.add('fade-out');
+    }, 2300);
+
+    setTimeout(function() {
+
+        intro.remove();
+        document.body.classList.remove('intro-active');
+
+        let banner = document.querySelector('.banner');
+
+        if (banner) {
+            setTimeout(function() {
+                banner.style.backgroundImage =
+                    'url("assets/backgroundstill.gif")';
+            }, 320);
+        }
+
+    }, 3000);
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>

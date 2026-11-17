@@ -1,0 +1,603 @@
+:root {
+    --green: #39884B;
+    --dark-green: #1f5e2e;
+    --orange: #ff753f;
+    --bg: #ffffff;
+    --text: #1a1a1a;
+}
+body.dark-mode {
+    --bg: #161616;
+    --text: #f1f1f1;
+    --green: #4fae63;
+}
+body {
+    margin: 0;
+    overflow-x: hidden;
+    font-family: "EB Garamond", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.4s, color 0.4s;
+}
+
+h1, h2, h3 {
+  font-family: "Darumadrop One", sans-serif;
+    font-weight: normal;
+    letter-spacing: 1px;
+}
+
+img {
+    max-width: 100%;
+}
+
+#intro {
+    position: fixed;
+    inset: 0;
+    background: #39884B;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    z-index: 9999;
+}
+#intro h1 {
+    color: white;
+    font-size: clamp(35px, 7vw, 80px);
+    text-align: center;
+    margin: 0;
+    animation: appear 1.5s ease;
+}
+#intro p {
+    color: white;
+    text-align: center;
+    font-size: clamp(16px, 2.5vw, 24px);
+    animation: appear 1.5s ease;
+}
+@keyframes appear {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+    #paint-rise {
+        position: absolute;
+        left: 0;
+        bottom: -200%;
+        width: 100vw;
+        height: 100%;
+        background: white;
+        z-index: 2;
+           }
+      #paint-rise::before {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        width: 100%;
+        height: 120px;
+        background-image: url("assets/white-paint.png");
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+          }
+               #paint-rise.rise {
+            animation: paintUp 0.8s ease-in-out forwards;
+           }
+            @keyframes paintUp {
+            from { bottom: -100%; }
+            to   { bottom: 0; }
+          }
+    #intro.fade-out {
+        opacity: 0;
+        transition: opacity 0.7s ease;
+        pointer-events: none;
+        }
+        body.intro-active {
+            overflow: hidden;
+ }
+
+ .banner {
+    width: 100%;
+    aspect-ratio: 3 / 1;
+    background-image: url("assets/backgroundcut.gif");
+    background-size: cover;
+    background-position: center bottom;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 1.5% 0 0 50%;
+    box-sizing: border-box;
+}
+.banner nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.banner a {
+    position: relative;
+    display: block;
+    width: fit-content;
+  font-family: "Darumadrop One", sans-serif;;
+    font-size: clamp(20px, 3vw, 55px);
+    line-height: 1.15;
+    font-style: italic;
+    color: white;
+    text-decoration: none;
+    isolation: isolate;
+    transition: color 0.2s;
+}
+        .banner a:nth-child(1) { transform: rotate(-4deg); }
+        .banner a:nth-child(2) { transform: rotate(2deg);  margin-left: 10px; }
+        .banner a:nth-child(3) { transform: rotate(-3deg); }
+        .banner a:nth-child(4) { transform: rotate(3deg);  margin-left: 10px; }
+        .banner a:nth-child(5) { transform: rotate(-5deg); }
+    .banner a::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: -15px;
+        width: calc(100% + 30px);
+        height: calc(100% + 10px);
+        background: black;
+        mix-blend-mode: difference;
+        clip-path: polygon(0% 20%, 95% 0%, 100% 100%, 5% 100%);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .banner a::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: -15px;
+        width: calc(100% + 30px);
+        height: calc(100% + 10px);
+        background: white;
+        clip-path: polygon(0% 20%, 95% 0%, 100% 80%, 5% 100%);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+        .banner a:hover {
+            color: var(--orange)
+        }
+        .banner a:hover::before,
+        .banner a:hover::after {
+            opacity: 1;
+        }
+
+        .banner a.active {
+            color: black;
+        }
+        .banner a.active::before {
+            opacity: 1;
+        }
+        .banner a.active::after {
+            opacity: 1;
+        }
+
+#mini-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+    z-index: 100;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+#mini-bar.show {
+    transform: translateY(0);
+    }
+#mini-bar .eye {
+    display: block;
+    height: 100%;
+    width: 200px;
+    opacity: 1;
+    overflow: hidden;
+}
+#mini-bar .eye img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#mini-bar nav {
+    display: flex;
+    gap: 18px;
+    margin-left: auto;
+    }
+#mini-bar a {
+    font-family: "Darumadrop One", serif;
+    font-style: italic;
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+    opacity: 0.6;
+    }
+#mini-bar a:hover {
+    opacity: 1;
+    }
+#mini-bar a.active {
+    opacity: 1;
+    color: black;
+    background: white;
+    padding: 2px 10px;
+    border-bottom: 4px solid var(--orange);
+    transform: rotate(-3deg);
+    display: inline-block;
+    }
+
+#dark-mode-btn {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    z-index: 200;
+    width: 50px;
+    height: 50px;
+    color: black;
+    border-radius: 50%;
+    border: 3px solid black;
+    background: white;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+    position: relative;
+    z-index: 0; 
+    overflow: hidden;
+    padding: 0 30px 60px;
+}
+    main {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    .splash {
+        position: absolute;
+        width: 350px;
+        opacity: 0.35;
+        z-index: -1;
+        pointer-events: none;
+    }
+        body.dark-mode .splash {
+            opacity: 0.2;
+        }
+
+.reveal {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+body.intro-active .reveal.show {
+    opacity: 0;
+    transform: translateY(60px);
+}
+
+                    .big-title {
+                        line-height: 0.95;
+                        margin: 10px 0 0;
+                        text-align: center;
+                    }
+                    .subtitle {
+                        text-align: center;
+                        font-size: clamp(18px, 2.5vw, 28px);
+                        margin: 20px 0 30px;
+                    }
+                    .photo-row {
+                    display: flex;
+                    justify-content: center;
+                    gap: 35px;
+                    flex-wrap: wrap;
+                    margin-bottom: 40px;
+                    }
+                    .frame {
+                        width: 200px;
+                        height: 200px;
+                        object-fit: cover;
+                    }
+
+                    .frame.red    { box-shadow: -10px -10px 0 #ff4b4b; transform: rotate(-3deg); }
+                    .frame.yellow { box-shadow: -10px -10px 0 #f5e026; transform: rotate(2deg); }
+                    .frame.blue   { box-shadow: -10px -10px 0 #3aa0ff; transform: rotate(-2deg); }
+                    .frame.purple { box-shadow: -10px -10px 0 #b44dff; transform: rotate(3deg); }
+
+                    .intro-text {
+                        text-align: center;
+                        font-size: 18px;
+                        line-height: 1.6;
+                        max-width: 800px;
+                        margin: 0 auto;
+                    }
+
+                    blockquote {
+                        font-family: "Londrina Outline", serif;
+                        font-weight: 400;
+                        font-size: 12.5vw;
+                        line-height: 1;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        color: var(--orange);
+                        text-align: center;
+                        box-sizing: border-box;
+                        width: 100vw;
+                        margin: 0;
+                        padding: 0.08em 0;
+                        opacity: 0.1;
+                    }
+
+footer {
+    text-align: center;
+    padding: 30px;
+    background: var(--green);
+    color: white;
+}
+/*TABLET*/
+@media (max-width: 900px) {
+
+    .row,
+    .row.flip,
+    .youtube-box {
+        flex-direction: column;
+    }
+
+    .row img,
+    .row .pic,
+    .row .text {
+        width: 100%;
+    }
+
+    .frame {
+        width: 150px;
+        height: 150px;
+    }
+
+    .splash {
+        width: 250px;
+    }
+}
+
+/*MOBILE */
+@media (max-width: 600px) {
+    .banner {
+        aspect-ratio: auto;
+        height: 260px;
+        background-position: 15% bottom;
+        padding: 15px 0 0 48%;
+    }
+
+    .banner nav {
+        gap: 4px;
+    }
+
+    .container {
+        padding: 0 15px 60px;
+    }
+
+    .big-title span {
+        padding-left: 0;
+    }
+
+    .frame {
+        width: 120px;
+        height: 120px;
+    }
+
+    .photo-row {
+        gap: 25px;
+    }
+
+    .gallery img {
+        width: 220px;
+    }
+    #mini-bar nav a {
+        display: none;
+    }
+
+    #mini-bar nav a.active {
+        display: inline-block;
+    }
+
+    .paper {
+        padding: 20px;
+    }
+}
+
+        .about-card {
+            --cream: #fbf5dc;
+            --cream-dark: #f3ebc8;
+            --sage: #6f8f4f;
+            --olive: #8f9c6c;
+            --rust: #8b461e;
+            --rose: #eb7843;
+            --brown-text: #4a3b2sa;
+            --tan: #c9b98f;
+        }
+        .about-card {
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 40px 45px;
+            background: var(--cream);
+            color: var(--brown-text);
+            font-family: "EB Garamond", Georgia, serif;
+            font-size: 18px;
+            text-align: center;
+            border: 10px solid var(--sage);
+            box-shadow: inset 0 0 0 3px var(--olive),
+                        inset 0 0 0 7px var(--cream),
+                        inset 0 0 0 8px var(--olive),
+                        4px 6px 15px rgba(0, 0, 0, 0.25);
+        }
+                    .about-card a {
+                color: var(--rust);
+                font-weight: bold;
+                    }
+                .portrait-frame {
+            width: 220px;
+            height: 290px;
+            margin: 0 auto;
+            padding: 6px;
+            background: var(--sage);
+            border: 3px solid var(--olive);
+            border-radius: 115px 115px 0 0;
+                    }
+                .portrait {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 110px 110px 0 0;
+                    }
+            .about-name {
+            font-family: "Darumadrop One", serif;
+            font-weight: 200;
+            font-size: clamp(48px, 10vw, 90px);
+            color: var(--rust);
+            margin: 10px 0 0;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 0 var(--brown-text);
+                    }
+            .about-name2 {
+            font-family: "Darumadrop One", serif;
+            font-weight: 500;
+            font-size: clamp(50px, 50vw, 30px);
+            color: var(--brown-text);
+            margin: -1px 5px 0;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 0 var(--sage);
+                    }
+                    .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--olive);
+            font-size: 26px;
+            margin: 15px 0;
+                    }
+                        .divider::before,
+                        .divider::after {
+                            content: "";
+                            flex: 1;
+                            height: 2px;
+                            background: var(--olive);
+                        }
+                        .info-line {
+                        display: flex;
+                        justify-content: center;
+                        flex-wrap: wrap;
+                        gap: 8px 25px;
+                        margin: 6px 0;
+                                }
+                                .about-quote {
+                        font-style: bold italic;
+                        font-size: 22px;
+                        color: var(--rose);
+                        margin: 20px 0;
+                    }
+                    .bio,
+                    .mini-box {
+                        background: var(--cream-dark);
+                        border: 2px solid var(--tan);
+                        box-shadow: inset 0 0 0 5px var(--cream-dark),
+                                    inset 0 0 0 6px var(--tan);
+                        padding: 25px;
+                        text-align: justify;
+                        line-height: 1.6;
+                        margin-bottom: 20px;
+                    }
+                    .bio b {
+                        color: var(--rose);
+                    }
+                        .bio mark {
+                            background: var(--rose);
+                            color: var(--cream-dark);
+                        }
+                    .bio p:first-child::first-letter {
+                        float: left;
+                        font-family: "Cinzel Decorative", serif;
+                        font-size: 50px;
+                        line-height: 1;
+                        padding: 4px 10px;
+                        margin: 4px 10px 0 0;
+                        background: var(--rust);
+                        color: var(--cream);
+                    }
+                    .two-boxes {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 20px;
+                    }
+                    .script-label {
+                        font-family: "Darumadrop One", cursive;
+                        font-size: 40px;
+                        letter-spacing: 0;
+                        color: var(--rust);
+                        text-align: center;
+                        margin: 0 0 10px;
+                    }
+                    .mini-box ul {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                    }
+                    .mini-box li::before {
+                        content: "➤ "; 
+                        color: var(--olive);
+                    }
+                    .tags {
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        gap: 8px;
+                    }
+                    .tags span {
+                        background: var(--bg);
+                        border: 1px solid var(--olive);
+                        border-radius: 20px;
+                        padding: 3px 12px;
+                        font-size: 16px;
+                    }
+                    .resume {
+                        font-size: 30px;
+                        margin-bottom: 10px;
+                    }
+                                    body.dark-mode .about-card {
+                                --cream: #272423;
+                                --brown-text: #faeddf;
+                            --sage: #924a20;
+                            --olive: #a85816;
+                            --rust: #58ce54;
+                            --cream-dark: #3a3a3a;
+                            --tan: #5c5442;
+                                    }
+                                    @media (max-width: 600px) {
+                                    .about-card {
+                                        padding: 30px 18px;
+                                        border-width: 6px;
+                                    }
+
+                                    .two-boxes {
+                                        grid-template-columns: 1fr;
+                                        gap: 0;
+                                    }
+
+                                    .portrait-frame {
+                                        width: 170px;
+                                        height: 225px;
+                                    }
+
+                                    .bio,
+                                    .mini-box {
+                                        padding: 18px;
+                                        text-align: left;
+                                    }
+                                }
